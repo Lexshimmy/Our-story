@@ -1,0 +1,675 @@
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Our Story — Deluxe Album</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    :root {
+      --bg-color: #0b0c10; /* Dark website background */
+      --card-bg: #ffffff; /* White card theme */
+      --accent-green: #1db954; /* Spotify-like Green */
+      --text-main: #111111; /* Dark text on white card */
+      --text-muted: #555555;
+      --polaroid-paper: #f9f9f6;
+      --polaroid-text: #222222;
+    }
+
+    body {
+      background-color: var(--bg-color) !important; /* Ensure solid black site background */
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 20px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Raining Hearts & Text Background Container */
+    #hearts-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0; /* Behind everything */
+      overflow: hidden;
+    }
+
+    .falling-element {
+      position: absolute;
+      top: -60px;
+      user-select: none;
+      pointer-events: none;
+      animation: fall linear infinite;
+      white-space: nowrap;
+    }
+
+    .falling-heart {
+      filter: drop-shadow(0 2px 6px rgba(255, 105, 180, 0.6)); /* Glowing Pink Glow */
+    }
+
+    .falling-text {
+      color: #ff69b4; /* Hot Pink Text */
+      font-weight: 800;
+      font-family: 'Courier New', Courier, monospace;
+      /* Vivid pink text glow against black background */
+      text-shadow: 0 0 8px rgba(255, 105, 180, 0.8), 0 0 15px rgba(255, 20, 147, 0.5);
+      letter-spacing: 0.5px;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.9;
+      }
+      100% {
+        transform: translateY(105vh) rotate(360deg);
+        opacity: 0.2;
+      }
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      position: relative;
+      z-index: 1; /* Above background elements */
+    }
+
+    /* Track Cards: Reverted to White Theme with Red Dot Patterns & Borders */
+    .track-page {
+      background-color: var(--card-bg);
+      background-image: radial-gradient(#ffb6c1 1.2px, transparent 1.2px), radial-gradient(#ff69b4 1.2px, #ffffff 1.2px);
+      background-size: 40px 40px;
+      background-position: 0 0, 20px 20px;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Stronger shadow on dark bg */
+      border: 2px solid #ffe6ea; /* Pink-ish Border */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page-tag {
+      align-self: flex-start;
+      background-color: #ffe6ea;
+      color: #d81b60;
+      padding: 5px 12px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      letter-spacing: 1px;
+    }
+
+    /* Polaroid Styles (Centered / Straight) */
+    .polaroid-wrapper {
+      position: relative;
+      width: 85%;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .floating-emoji {
+      position: absolute;
+      font-size: 1.6rem;
+      user-select: none;
+      z-index: 10;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+      animation: float 3s ease-in-out infinite alternate;
+    }
+
+    .emoji-tl { top: -12px; left: -10px; animation-delay: 0s; }
+    .emoji-tr { top: -12px; right: -10px; animation-delay: 0.6s; }
+    .emoji-bl { bottom: 15px; left: -14px; animation-delay: 1.2s; }
+    .emoji-br { bottom: 15px; right: -14px; animation-delay: 1.8s; }
+
+    @keyframes float {
+      0% { transform: translateY(0px) rotate(-5deg); }
+      100% { transform: translateY(-8px) rotate(5deg); }
+    }
+
+    .polaroid-frame {
+      background-color: var(--polaroid-paper);
+      padding: 12px 12px 20px 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      transform: none !important; /* Forces straight center position for polaroid */
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #eaeaea;
+    }
+
+    .polaroid-img {
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+      display: block;
+      background-color: #eee;
+      border-radius: 4px;
+    }
+
+    .polaroid-caption {
+      color: var(--polaroid-text);
+      font-family: "Courier New", Courier, monospace;
+      font-weight: bold;
+      font-size: 0.95rem;
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    /* Player Box Under Polaroid */
+    .border-player-box {
+      width: 100%;
+      background: #1f2833; /* Dark box inside card */
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+      font-family: monospace;
+      text-align: left;
+      line-height: 1.5;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .border-title {
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    .border-subtitle {
+      font-size: 0.8rem;
+      color: #c5c6c7;
+      margin-bottom: 8px;
+    }
+
+    .border-timeline {
+      font-size: 0.8rem;
+      color: #c5c6c7;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .border-timeline input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent-green);
+      cursor: pointer;
+    }
+
+    .border-controls {
+      margin-top: 8px;
+      font-size: 1.1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .control-btn {
+      background: none;
+      border: none;
+      color: #ffffff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0;
+      transition: transform 0.1s ease;
+    }
+
+    .control-btn:active {
+      transform: scale(0.9);
+    }
+
+    .play-trigger {
+      background-color: var(--accent-green);
+      color: #000;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      line-height: 1;
+    }
+
+    .lyric-quote {
+      font-style: italic;
+      color: #444444; /* Standard dark grey on white background */
+      font-weight: 600;
+      font-size: 0.88rem;
+      text-align: center;
+      margin-top: 10px;
+      padding: 0 10px;
+      line-height: 1.4;
+    }
+
+    /* Proposal Box */
+    .proposal-card {
+      background: linear-gradient(135deg, #ffffff 0%, #ffe6ea 100%);
+      border: 2px solid #ff4d6d;
+      text-align: center;
+    }
+
+    .question-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #d81b60;
+      margin: 15px 0;
+    }
+
+    .options-grid {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    .btn-option {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 30px;
+      font-weight: bold;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-yes {
+      background-color: var(--accent-green);
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(29, 185, 84, 0.3);
+    }
+
+    .btn-definitely {
+      background-color: #ff4d6d;
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(255, 77, 109, 0.3);
+    }
+
+    #success-message {
+      display: none;
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(29, 185, 84, 0.15);
+      border: 2px solid var(--accent-green);
+      border-radius: 12px;
+      color: #1b5e20;
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Falling Hearts & Text Background -->
+  <div id="hearts-container"></div>
+
+  <div class="container">
+
+    <!-- ALBUM COVER PAGE -->
+    <div class="track-page">
+      <div class="page-tag">Album Cover</div>
+      
+      <div class="polaroid-wrapper">
+        <span class="floating-emoji emoji-tl">👩‍❤️‍👨</span>
+        <span class="floating-emoji emoji-tr">💭</span>
+        <span class="floating-emoji emoji-bl">🔒</span>
+        <span class="floating-emoji emoji-br">✨</span>
+        <div class="polaroid-frame">
+          <img class="polaroid-img" src="https://files.catbox.moe/wueyxg.jpg" alt="Cover Photo">
+          <div class="polaroid-caption">Since Day One...</div>
+        </div>
+      </div>
+
+      <audio id="audio-0" src="https://files.catbox.moe/l4qr9m.mp3" preload="metadata"></audio>
+
+      <div class="border-player-box">
+        <div class="border-title">Great Gatsby</div>
+        <div class="border-subtitle">You & Her — Rod Wave Theme</div>
+        <div class="border-timeline">
+          <span id="current-0">0:00</span>
+          <input type="range" id="seek-0" value="0" min="0" max="100" oninput="seekAudio('audio-0', this.value)">
+          <span id="duration-0">0:00</span>
+        </div>
+        <div class="border-controls">
+          <button class="control-btn">⏮</button>
+          <button class="control-btn play-trigger" onclick="togglePlay('audio-0', this)">▶</button>
+          <button class="control-btn">⏭</button>
+          <button class="control-btn">🔀</button>
+          <button class="control-btn">💚</button>
+        </div>
+      </div>
+
+      <div class="lyric-quote">
+        "I threw the party of the century...<br>
+        And it was all for you, it was all for you."
+      </div>
+    </div>
+
+    <!-- TRACK 01 -->
+    <div class="track-page">
+      <div class="page-tag">Where It Started</div>
+      
+      <div class="polaroid-wrapper">
+        <span class="floating-emoji emoji-tl">🥺</span>
+        <span class="floating-emoji emoji-tr">🧸</span>
+        <span class="floating-emoji emoji-bl">🎀</span>
+        <span class="floating-emoji emoji-br">🥹</span>
+        <div class="polaroid-frame">
+          <img class="polaroid-img" src="https://files.catbox.moe/fc9kme.GIF" alt="First Date GIF">
+          <div class="polaroid-caption">Where it started...</div>
+        </div>
+      </div>
+
+      <audio id="audio-1" src="https://files.catbox.moe/zhqia6.mp3" preload="metadata"></audio>
+
+      <div class="border-player-box">
+        <div class="border-title">Girl of My Dreams</div>
+        <div class="border-subtitle">You & Her — Rod Wave Theme</div>
+        <div class="border-timeline">
+          <span id="current-1">0:00</span>
+          <input type="range" id="seek-1" value="0" min="0" max="100" oninput="seekAudio('audio-1', this.value)">
+          <span id="duration-1">0:00</span>
+        </div>
+        <div class="border-controls">
+          <button class="control-btn">⏮</button>
+          <button class="control-btn play-trigger" onclick="togglePlay('audio-1', this)">▶</button>
+          <button class="control-btn">⏭</button>
+          <button class="control-btn">🔀</button>
+          <button class="control-btn">💚</button>
+        </div>
+      </div>
+
+      <div class="lyric-quote">
+        "You look so good to me, yeah<br>
+        She looks like the girl of my dreams"
+      </div>
+    </div>
+
+    <!-- TRACK 02 -->
+    <div class="track-page">
+      <div class="page-tag">Building The Bond</div>
+      
+      <div class="polaroid-wrapper">
+        <span class="floating-emoji emoji-tl">🥰</span>
+        <span class="floating-emoji emoji-tr">😘</span>
+        <span class="floating-emoji emoji-bl">💞</span>
+        <span class="floating-emoji emoji-br">🖤</span>
+        <div class="polaroid-frame">
+          <img class="polaroid-img" src="https://files.catbox.moe/i4ycek.png" alt="By Your Side Photo">
+          <div class="polaroid-caption">Always by my side</div>
+        </div>
+      </div>
+
+      <audio id="audio-2" src="https://files.catbox.moe/0qjjbt.mp3" preload="metadata"></audio>
+
+      <div class="border-player-box">
+        <div class="border-title">By Your Side</div>
+        <div class="border-subtitle">You & Her — Rod Wave Theme</div>
+        <div class="border-timeline">
+          <span id="current-2">0:00</span>
+          <input type="range" id="seek-2" value="0" min="0" max="100" oninput="seekAudio('audio-2', this.value)">
+          <span id="duration-2">0:00</span>
+        </div>
+        <div class="border-controls">
+          <button class="control-btn">⏮</button>
+          <button class="control-btn play-trigger" onclick="togglePlay('audio-2', this)">▶</button>
+          <button class="control-btn">⏭</button>
+          <button class="control-btn">🔀</button>
+          <button class="control-btn">💚</button>
+        </div>
+      </div>
+
+      <div class="lyric-quote">
+        "Tonight you look so pretty, yes you do<br>
+        Times Square couldn't shine as bright as you"
+      </div>
+    </div>
+
+    <!-- TRACK 03 -->
+    <div class="track-page">
+      <div class="page-tag">Connection</div>
+      
+      <div class="polaroid-wrapper">
+        <span class="floating-emoji emoji-tl">☁️</span>
+        <span class="floating-emoji emoji-tr">💌</span>
+        <span class="floating-emoji emoji-bl">🌸</span>
+        <span class="floating-emoji emoji-br">💘</span>
+        <div class="polaroid-frame">
+          <img class="polaroid-img" src="https://files.catbox.moe/46qgll.png" alt="Street Runner Photo">
+          <div class="polaroid-caption">Late night talks</div>
+        </div>
+      </div>
+
+      <audio id="audio-3" src="https://files.catbox.moe/m9litj.mp3" preload="metadata"></audio>
+
+      <div class="border-player-box">
+        <div class="border-title">Street Runner</div>
+        <div class="border-subtitle">You & Her — Rod Wave Theme</div>
+        <div class="border-timeline">
+          <span id="current-3">0:00</span>
+          <input type="range" id="seek-3" value="0" min="0" max="100" oninput="seekAudio('audio-3', this.value)">
+          <span id="duration-3">0:00</span>
+        </div>
+        <div class="border-controls">
+          <button class="control-btn">⏮</button>
+          <button class="control-btn play-trigger" onclick="togglePlay('audio-3', this)">▶</button>
+          <button class="control-btn">⏭</button>
+          <button class="control-btn">🔀</button>
+          <button class="control-btn">💚</button>
+        </div>
+      </div>
+
+      <div class="lyric-quote">
+        "I think about you when I'm gone, wishing I could hold you<br>
+        I miss you, I've been thinking about you"
+      </div>
+    </div>
+
+    <!-- TRACK 04 (PROPOSAL) -->
+    <div class="track-page proposal-card">
+      <div class="page-tag">The Big Question</div>
+      
+      <div class="polaroid-wrapper">
+        <span class="floating-emoji emoji-tl">💍</span>
+        <span class="floating-emoji emoji-tr">💖</span>
+        <span class="floating-emoji emoji-bl">🌹</span>
+        <span class="floating-emoji emoji-br">🔒</span>
+        <div class="polaroid-frame">
+          <img class="polaroid-img" src="https://files.catbox.moe/ffjfq8.jpg" alt="Us Together">
+          <div class="polaroid-caption">Just You & Me🔒.</div>
+        </div>
+      </div>
+
+      <audio id="audio-4" src="https://files.catbox.moe/w7d2k1.mp3" preload="metadata"></audio>
+      <!-- celebration music played only on YES click -->
+      <audio id="audio-celebration" src="https://files.catbox.moe/khlqfg.mp3" preload="metadata"></audio>
+
+      <div class="border-player-box">
+        <div class="border-title">Forever</div>
+        <div class="border-subtitle">You & Her — Rod Wave Theme</div>
+        <div class="border-timeline">
+          <span id="current-4">0:00</span>
+          <input type="range" id="seek-4" value="0" min="0" max="100" oninput="seekAudio('audio-4', this.value)">
+          <span id="duration-4">0:00</span>
+        </div>
+        <div class="border-controls">
+          <button class="control-btn">⏮</button>
+          <button class="control-btn play-trigger" onclick="togglePlay('audio-4', this)">▶</button>
+          <button class="control-btn">⏭</button>
+          <button class="control-btn">🔀</button>
+          <button class="control-btn">💚</button>
+        </div>
+      </div>
+
+      <div class="lyric-quote">
+        "Wherever you are tonight<br>
+        I hope you know you'll have my heart for life"
+      </div>
+
+      <div class="question-title">Will You Be My Girlfriend?</div>
+
+      <div class="options-grid">
+        <button class="btn-option btn-yes" onclick="triggerProposalEffect()">YES</button>
+        <button class="btn-option btn-definitely" onclick="triggerProposalEffect()">DEFINITELY YES</button>
+      </div>
+
+      <div id="success-message">
+        ❤️ OFFICIAL NOW! I Love You! ❤️
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Raining Hearts & Text Background Generator
+    function createRainingBackground() {
+      const container = document.getElementById('hearts-container');
+      const hearts = ['❤️', '💖', '💗', '💕', '💘', '💓', '❣️'];
+      const textPhrases = ['I love you stink', 'I love you stink 💕', 'I love you stink ❤️'];
+      const totalElements = 40; // Adjust density
+
+      for (let i = 0; i < totalElements; i++) {
+        const el = document.createElement('div');
+        el.classList.add('falling-element');
+        
+        // Randomly choose between a heart emoji and the text quote
+        const isText = Math.random() < 0.45; // ~45% text, 55% hearts
+        
+        if (isText) {
+          el.classList.add('falling-text');
+          el.textContent = textPhrases[Math.floor(Math.random() * textPhrases.length)];
+          el.style.fontSize = (Math.random() * 0.6 + 0.8) + 'rem'; // Text size range
+        } else {
+          el.classList.add('falling-heart');
+          el.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+          el.style.fontSize = (Math.random() * 1.5 + 0.9) + 'rem'; // Various sizes
+        }
+        
+        // Randomize positioning, animation duration, and delay
+        el.style.left = Math.random() * 95 + 'vw';
+        el.style.animationDuration = (Math.random() * 4 + 4) + 's'; // 4s to 8s fall time
+        el.style.animationDelay = Math.random() * 6 + 's';
+        
+        container.appendChild(el);
+      }
+    }
+
+    createRainingBackground();
+
+    function togglePlay(audioId, btn) {
+      const allAudios = document.querySelectorAll('audio');
+      const targetAudio = document.getElementById(audioId);
+
+      // Stop any standard tracks playing
+      allAudios.forEach((aud) => {
+        if (aud !== targetAudio && aud.id !== 'audio-celebration') {
+          aud.pause();
+          const otherBtn = aud.parentElement.querySelector('.play-trigger');
+          if (otherBtn) otherBtn.textContent = '▶';
+        }
+      });
+
+      if (targetAudio.paused) {
+        targetAudio.play();
+        btn.textContent = '⏸';
+      } else {
+        targetAudio.pause();
+        btn.textContent = '▶';
+      }
+    }
+
+    function seekAudio(audioId, seekPercent) {
+      const audio = document.getElementById(audioId);
+      if (audio.duration) {
+        audio.currentTime = (seekPercent / 100) * audio.duration;
+      }
+    }
+
+    function formatTime(seconds) {
+      if (isNaN(seconds)) return "0:00";
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    document.querySelectorAll('audio').forEach((audio) => {
+      // Setup timeline/tracking only for track audios, not celebration
+      if (audio.id === 'audio-celebration') return;
+
+      const num = audio.id.split('-')[1];
+      const currentLabel = document.getElementById(`current-${num}`);
+      const durationLabel = document.getElementById(`duration-${num}`);
+      const slider = document.getElementById(`seek-${num}`);
+
+      audio.addEventListener('timeupdate', () => {
+        if (audio.duration) {
+          slider.value = (audio.currentTime / audio.duration) * 100;
+          currentLabel.textContent = formatTime(audio.currentTime);
+        }
+      });
+
+      audio.addEventListener('loadedmetadata', () => {
+        durationLabel.textContent = formatTime(audio.duration);
+      });
+
+      audio.addEventListener('ended', () => {
+        const btn = audio.parentElement.querySelector('.play-trigger');
+        if (btn) btn.textContent = '▶';
+        slider.value = 0;
+      });
+    });
+
+    function triggerProposalEffect() {
+      // 1. Stop all other audio tracks playing
+      const allAudios = document.querySelectorAll('audio');
+      allAudios.forEach(aud => aud.pause());
+      // Reset play buttons on track players
+      document.querySelectorAll('.play-trigger').forEach(btn => btn.textContent = '▶');
+
+      // 2. Play the special celebration song
+      const celebAudio = document.getElementById('audio-celebration');
+      celebAudio.currentTime = 0; // Start from beginning
+      celebAudio.play();
+
+      // 3. Fire Confetti
+      var count = 200;
+      var defaults = { origin: { y: 0.7 } };
+
+      function fire(particleRatio, opts) {
+        confetti(Object.assign({}, defaults, opts, {
+          particleCount: Math.floor(count * particleRatio)
+        }));
+      }
+
+      fire(0.25, { spread: 26, startVelocity: 55, colors: ['#1db954', '#ffffff'] }); // Green/White
+      fire(0.2, { spread: 60, colors: ['#ff4d4d', '#ffffff'] }); // Red/White
+      fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+      fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+      fire(0.1, { spread: 120, startVelocity: 45 });
+
+      // 4. Show success message
+      document.getElementById('success-message').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
